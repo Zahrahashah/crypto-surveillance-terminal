@@ -1,0 +1,58 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                 String         @id @default(uuid())
+  email              String         @unique
+  passwordHash       String
+  createdAt          DateTime       @default(now())
+  refreshToken       String?        @unique
+  refreshTokenExpiry DateTime?
+  wishlist           WishlistItem[]
+}
+
+model Coin {
+  id             String         @id @default(uuid())
+  coinGeckoId    String         @unique
+  symbol         String
+  name           String
+  priceSnapshots PriceSnapshot[]
+  alerts         Alert[]
+  wishlistedBy   WishlistItem[]
+}
+
+model PriceSnapshot {
+  id        String   @id @default(uuid())
+  coinId    String
+  price     Float
+  fetchedAt DateTime @default(now())
+  coin      Coin     @relation(fields: [coinId], references: [id], onDelete: Cascade)
+
+  @@index([coinId, fetchedAt])
+}
+
+model Alert {
+  id             String   @id @default(uuid())
+  coinId         String
+  priceAtCrash   Float
+  percentageDrop Float
+  triggeredAt    DateTime @default(now())
+  coin           Coin     @relation(fields: [coinId], references: [id], onDelete: Cascade)
+
+  @@index([coinId, triggeredAt])
+}
+
+model WishlistItem {
+  userId String
+  coinId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coin   Coin   @relation(fields: [coinId], references: [id], onDelete: Cascade)
+
+  @@id([userId, coinId])
+}

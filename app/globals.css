@@ -1,27 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #020702;
+  --foreground: #fafafa;
+  --accent: #a3e635; /* vivid lime green */
+  --accent-muted: rgba(163, 230, 53, 0.15);
+  --accent-hover: #b4f246;
+  
+  /* Semantic Palette */
+  --success: #10b981; /* emerald green */
+  --danger: #ef4444; /* red */
+  --warning: #f59e0b; /* amber */
+  
+  --muted: #a3e635;
+  --card-bg: rgba(8, 20, 8, 0.35);
+  --border-opacity: rgba(163, 230, 53, 0.18);
 }
 
 body {
+  background-color: var(--background);
+  background-image: radial-gradient(circle at 50% 50%, #031403 0%, #010601 60%, #000000 100%);
+  background-attachment: fixed;
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #061006;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(163, 230, 53, 0.15);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Premium SaaS Ambient Glow Background */
+.ambient-glow-1 {
+  background: radial-gradient(circle, rgba(163, 230, 53, 0.12) 0%, transparent 70%);
+}
+.ambient-glow-2 {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+}
+
+/* Glassmorphic Panel Styles */
+.glass-panel {
+  background: linear-gradient(135deg, rgba(8, 24, 8, 0.5) 0%, rgba(3, 10, 3, 0.3) 100%);
+  backdrop-filter: blur(12px) saturate(130%);
+  border: 1px solid rgba(163, 230, 53, 0.18);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(163, 230, 53, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Fix stacking contexts created by glassmorphic elements or flex layouts while Driver.js is active */
+body.driver-active #dashboard-layout-root,
+body.driver-active #dashboard-main-container,
+body.driver-active main,
+body.driver-active #sidebar-navigation,
+body.driver-active .glass-panel {
+  transform: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  will-change: auto !important;
+}
+
+.driver-stacking-fix {
+  transform: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  will-change: auto !important;
+  z-index: auto !important;
+}
+
+/* Micro-animations & Interactive States */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  border-color: rgba(163, 230, 53, 0.25);
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.6), 
+    0 0 15px rgba(163, 230, 53, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Live indicators */
+@keyframes soft-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}
+.pulse-live {
+  animation: soft-pulse 2s infinite ease-in-out;
+}
+
+@keyframes ping-glow {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+.ping-glow {
+  animation: ping-glow 1.5s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Real-Time Price Update Flash Animations */
+@keyframes flash-up {
+  0% {
+    background-color: rgba(16, 185, 129, 0.25);
+    color: #10b981;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes flash-down {
+  0% {
+    background-color: rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.price-flash-up {
+  animation: flash-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.price-flash-down {
+  animation: flash-down 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* SVG Chart drawing keyframes */
+@keyframes drawChart {
+  from {
+    stroke-dashoffset: 600;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.animate-draw-chart {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: drawChart 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Driver.js Premium Styling Overrides */
+.driver-popover.driverjs-theme {
+  background: rgba(19, 19, 26, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(163, 230, 53, 0.1);
+  padding: 20px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #a1a1aa;
+  line-height: 1.5;
+}
+
+.driver-popover.driverjs-theme .driver-popover-footer {
+  margin-top: 16px;
+  gap: 8px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.driver-popover.driverjs-theme .driver-popover-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.driver-popover.driverjs-theme .driver-popover-next-btn,
+.driver-popover.driverjs-theme .driver-popover-close-btn {
+  background: var(--accent) !important;
+  color: #000000 !important;
+  border: 1px solid var(--accent) !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-next-btn:hover,
+.driver-popover.driverjs-theme .driver-popover-close-btn:hover {
+  background: var(--accent-hover) !important;
+  box-shadow: 0 0 12px rgba(163, 230, 53, 0.3);
+}
+
+.driver-popover.driverjs-theme .driver-popover-prev-btn {
+  color: #a1a1aa !important;
+}
+
+.driver-popover.driverjs-theme .driver-popover-progress-text {
+  color: #71717a;
+  font-size: 10px;
+}
+
+.driver-popover.driverjs-theme .driver-popover-arrow {
+  border-color: rgba(19, 19, 26, 0.95);
+}
+
+
+
+@keyframes drawSparkline {
+  from {
+    stroke-dashoffset: 300;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
   }
 }
