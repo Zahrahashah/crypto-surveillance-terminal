@@ -101,19 +101,19 @@ async function startWorker() {
           const currentPrice = prices[coin.coinGeckoId];
           if (typeof currentPrice !== "number") continue;
 
-          activeIds.push(coin.id);
+          activeIds.push(coin.coinGeckoId);
 
           // Step c: Read the previous currentPrice from Redis before overwriting
-          const previousPriceStr = await redis.get(`currentPrice:${coin.id}`);
+          const previousPriceStr = await redis.get(`currentPrice:${coin.coinGeckoId}`);
 
           // Step d: Write new price to currentPrice:{coinId} in Redis
-          await redis.set(`currentPrice:${coin.id}`, currentPrice.toString());
+          await redis.set(`currentPrice:${coin.coinGeckoId}`, currentPrice.toString());
 
           if (previousPriceStr) {
             const previousPrice = parseFloat(previousPriceStr);
             if (previousPrice > 0) {
               // Update previousPrice key in Redis so APIs can read it
-              await redis.set(`previousPrice:${coin.id}`, previousPrice.toString());
+              await redis.set(`previousPrice:${coin.coinGeckoId}`, previousPrice.toString());
 
               const percentageChange = ((currentPrice - previousPrice) / previousPrice) * 100;
 
@@ -123,7 +123,7 @@ async function startWorker() {
 
               // Monitor for flash crashes (drop <= -threshold)
               if (percentageChange <= -threshold) {
-                const dedupKey = `alert:dedup:${coin.id}`;
+                const dedupKey = `alert:dedup:${coin.coinGeckoId}`;
                 const isDeduped = await redis.get(dedupKey);
 
                 if (!isDeduped) {
@@ -157,7 +157,7 @@ async function startWorker() {
             }
           } else {
             // If there was no previous currentPrice, initialize previousPrice as the current price
-            await redis.set(`previousPrice:${coin.id}`, currentPrice.toString());
+            await redis.set(`previousPrice:${coin.coinGeckoId}`, currentPrice.toString());
           }
 
           // Step g: Prep for bulk insert

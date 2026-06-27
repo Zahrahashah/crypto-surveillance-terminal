@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     const results = [];
 
     for (const coin of coins) {
-      const currentPriceStr = await redis.get(`currentPrice:${coin.id}`);
+      const currentPriceStr = await redis.get(`currentPrice:${coin.coinGeckoId}`);
       
       let price = currentPriceStr ? parseFloat(currentPriceStr) : null;
       let previousPrice = null;
@@ -47,8 +47,8 @@ export async function GET(req: Request) {
             percentageChange = 0.0;
 
             // Populate Redis immediately so it is available in general GET /api/prices
-            await redis.set(`currentPrice:${coin.id}`, currentPrice.toString());
-            await redis.set(`previousPrice:${coin.id}`, currentPrice.toString());
+            await redis.set(`currentPrice:${coin.coinGeckoId}`, currentPrice.toString());
+            await redis.set(`previousPrice:${coin.coinGeckoId}`, currentPrice.toString());
 
             // Write initial snapshot to PostgreSQL
             await prisma.priceSnapshot.create({
@@ -70,7 +70,7 @@ export async function GET(req: Request) {
           );
         }
       } else {
-        const previousPriceStr = await redis.get(`previousPrice:${coin.id}`);
+        const previousPriceStr = await redis.get(`previousPrice:${coin.coinGeckoId}`);
         previousPrice = previousPriceStr ? parseFloat(previousPriceStr) : null;
         if (previousPrice && previousPrice > 0) {
           percentageChange = ((price - previousPrice) / previousPrice) * 100;

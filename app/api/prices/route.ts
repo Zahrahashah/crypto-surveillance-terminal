@@ -8,15 +8,15 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     // Get all active coin IDs from Redis Set
-    const coinIds = await redis.smembers("active_monitors");
+    const coinGeckoIds = await redis.smembers("active_monitors");
     
-    if (coinIds.length === 0) {
+    if (coinGeckoIds.length === 0) {
       return NextResponse.json([]);
     }
 
-    // Fetch corresponding Coin records from PostgreSQL
+    // Fetch corresponding Coin records from PostgreSQL using coinGeckoId
     const dbCoins = await prisma.coin.findMany({
-      where: { id: { in: coinIds } },
+      where: { coinGeckoId: { in: coinGeckoIds } },
     });
 
     if (dbCoins.length === 0) {
@@ -24,8 +24,8 @@ export async function GET() {
     }
 
     // Batch get current and previous prices from Redis
-    const currentKeys = dbCoins.map((c) => `currentPrice:${c.id}`);
-    const previousKeys = dbCoins.map((c) => `previousPrice:${c.id}`);
+    const currentKeys = dbCoins.map((c) => `currentPrice:${c.coinGeckoId}`);
+    const previousKeys = dbCoins.map((c) => `previousPrice:${c.coinGeckoId}`);
 
     const [currentPrices, previousPrices] = await Promise.all([
       redis.mget(currentKeys),

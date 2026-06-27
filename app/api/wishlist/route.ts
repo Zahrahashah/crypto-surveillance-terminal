@@ -28,8 +28,8 @@ export async function GET() {
     const coins = wishlistItems.map((item) => item.coin);
 
     // Batch fetch prices from Redis
-    const currentKeys = coins.map((c) => `currentPrice:${c.id}`);
-    const previousKeys = coins.map((c) => `previousPrice:${c.id}`);
+    const currentKeys = coins.map((c) => `currentPrice:${c.coinGeckoId}`);
+    const previousKeys = coins.map((c) => `previousPrice:${c.coinGeckoId}`);
 
     const [currentPrices, previousPrices] = await Promise.all([
       redis.mget(currentKeys),
