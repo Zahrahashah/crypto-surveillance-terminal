@@ -55,9 +55,6 @@ async function startWorker() {
       logger.info({ eventType: "job_run_start", timestamp }, "Background price monitoring job started.");
 
       try {
-        // Clear active monitors tracker in Redis to rebuild for this run
-        await redis.del("active_monitors");
-
         // Step a: Fetch active coin IDs (wishlisted coins) from database
         const wishlistItems = await prisma.wishlistItem.findMany({
           select: { coinId: true },
@@ -177,9 +174,12 @@ async function startWorker() {
           });
         }
 
-        // Batch populate active monitors list in Redis
+        // Batch populate active monitors list in Redis atomically
         if (activeIds.length > 0) {
-          await redis.sadd("active_monitors", ...activeIds);
+          const pipeline = redis.pipeline();
+          pipeline.del("active_monitors");
+          pipeline.sadd("active_monitors", ...activeIds);
+          await pipeline.exec();
         }
 
         const jobDuration = Date.now() - jobStart;
